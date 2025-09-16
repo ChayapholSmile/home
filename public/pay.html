@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrueMoney Wallet Top-up</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+                Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        #app {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px_12px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h3 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .info-container {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .copy-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 8px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+        
+        .copy-container span {
+            word-break: break-all;
+        }
+
+        .copy-btn {
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            background-color: transparent;
+            padding: 5px;
+        }
+
+        /* Container สำหรับ QR Code และโลโก้ */
+        #qrcode-container {
+            position: relative; /* สำคัญมาก! เพื่อให้โลโก้ลอยอยู่ภายในกรอบนี้ */
+            display: inline-block; /* ทำให้ container มีขนาดพอดีกับ QR Code */
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        #qrcode {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* สไตล์ของโลโก้ที่อยู่ตรงกลาง */
+        .qrcode-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); /* จัดให้อยู่ตรงกลางเป๊ะๆ */
+            width: 50px; /* ขนาดโลโก้ */
+            height: 50px;
+            background-color: white; /* พื้นหลังสีขาว */
+            padding: 5px; /* ระยะห่างระหว่างโลโก้กับขอบ */
+            border-radius: 8px; /* ทำให้ขอบมน */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .error {
+            color: #d9534f;
+            font-weight: 600;
+            padding: 15px;
+            border: 1px solid #d9534f;
+            border-radius: 8px;
+            background-color: #f2dede;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div v-if="phone">
+            <h3>กรุณาโอนเงินเข้าบัญชี TrueMoney</h3>
+            <div class="info-container">
+                <div class="copy-container">
+                    <span>บัญชี: {{ phone }}</span>
+                    <button class="copy-btn" @click="copyText(phone)" title="คัดลอกเบอร์โทรศัพท์">📋</button>
+                </div>
+                <div class="copy-container">
+                    <span>จำนวน: <b>{{ amount }}</b> ฿</span>
+                </div>
+                <div class="copy-container">
+                    <span>ข้อความ: {{ message }}</span>
+                    <button class="copy-btn" @click="copyText(message)" title="คัดลอกข้อความ">📋</button>
+                </div>
+            </div>
+
+            <h3>หรือสแกน QR Code</h3>
+            
+            <div id="qrcode-container">
+                <div id="qrcode"></div>
+                <img src="https://img.uxwing.com/wp-content/themes/uxwing/download/brands-social-media/true-money-wallet-logo-icon.png" class="qrcode-logo" alt="TrueMoney Logo">
+            </div>
+
+        </div>
+        <div class="error" v-else>
+            ไม่พบข้อมูลการชำระเงิน! <br>กรุณาตรวจสอบลิงก์อีกครั้ง
+        </div>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    isMobile: false,
+                    phone: "",
+                    amount: "",
+                    message: "",
+                    deeplink: ""
+                };
+            },
+            mounted() {
+                this.isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                this.phone = urlParams.get("phone") || "";
+                this.amount = urlParams.get("amount") || "";
+                this.message = urlParams.get("message") || "";
+
+                if (this.phone) {
+                    this.generateQR();
+                }
+
+                // *** เพิ่มโค้ดส่วนนี้กลับเข้ามาเพื่อให้เปิดแอปอัตโนมัติบนมือถือ ***
+                if (this.isMobile && this.phone) {
+                    this.openDeeplink();
+                }
+            },
+            methods: {
+                generateQR() {
+                    const methodData = JSON.stringify({
+                        "tmn_phone": this.phone,
+                        "tmn_msg": this.message,
+                        "tmn_amount": this.amount ? Number(this.amount) : undefined
+                    });
+
+                    this.deeplink = `ascendmoney://wallet.truemoney.co.th/app/660000000005?type=constant&method=${encodeURIComponent(methodData)}`;
+
+                    document.getElementById("qrcode").innerHTML = "";
+                    new QRCode(document.getElementById("qrcode"), {
+                        text: this.deeplink,
+                        width: 256,
+                        height: 256,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        // *** ตั้งค่า Error Correction เป็นระดับ H (สูงสุด) ***
+                        // เพื่อให้สแกนได้แม้มีโลโก้อยู่ตรงกลาง
+                        correctLevel: QRCode.CorrectLevel.H 
+                    });
+                },
+                openDeeplink() {
+                    if (this.deeplink) {
+                        window.location.href = this.deeplink;
+                    }
+                },
+                copyText(text) {
+                    navigator.clipboard.writeText(text).then(() => {
+                        alert("คัดลอกสำเร็จ: " + text);
+                    }).catch(err => {
+                        console.error("ไม่สามารถคัดลอกได้: ", err);
+                        alert("คัดลอกไม่สำเร็จ");
+                    });
+                }
+            }
+        }).mount("#app");
+    </script>
+</body>
+</html>
