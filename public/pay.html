@@ -3,202 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrueMoney Wallet Top-up</title>
+    <title>ชำระเงินผ่าน TrueMoney</title>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
-                Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 20px;
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f4f7f6;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            margin: 0;
+            padding: 20px;
             box-sizing: border-box;
         }
 
         #app {
-            background-color: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px_12px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
             width: 100%;
+            max-width: 400px;
+        }
+
+        .payment-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            padding: 25px;
             text-align: center;
         }
 
         h3 {
             color: #333;
             margin-top: 0;
-            margin-bottom: 20px;
-            font-weight: 600;
+            font-weight: 700;
         }
 
-        .info-container {
-            text-align: left;
-            margin-bottom: 20px;
-        }
-
-        .copy-container {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            padding: 8px;
-            border: 1px solid #eee;
-            border-radius: 8px;
+        .info-section p {
+            font-size: 16px;
+            color: #555;
+            word-wrap: break-word;
         }
         
-        .copy-container span {
-            word-break: break-all;
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            text-align: left;
+            padding: 10px;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+
+        .info-row span {
+            flex-grow: 1;
         }
 
         .copy-btn {
-            font-size: 16px;
+            font-size: 12px;
+            padding: 5px 10px;
             cursor: pointer;
-            border: none;
-            background-color: transparent;
-            padding: 5px;
+            border: 1px solid #ddd;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            transition: all 0.3s;
+            margin-left: 10px;
+            flex-shrink: 0;
         }
 
-        /* Container สำหรับ QR Code และโลโก้ */
-        #qrcode-container {
-            position: relative; /* สำคัญมาก! เพื่อให้โลโก้ลอยอยู่ภายในกรอบนี้ */
-            display: inline-block; /* ทำให้ container มีขนาดพอดีกับ QR Code */
-            margin-top: 20px;
-            margin-bottom: 20px;
+        .copy-btn:hover {
+            background-color: #e0e0e0;
         }
         
+        .copy-btn.copied {
+            background-color: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+
         #qrcode {
             display: flex;
             justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
         }
 
-        /* สไตล์ของโลโก้ที่อยู่ตรงกลาง */
-        .qrcode-logo {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%); /* จัดให้อยู่ตรงกลางเป๊ะๆ */
-            width: 50px; /* ขนาดโลโก้ */
-            height: 50px;
-            background-color: white; /* พื้นหลังสีขาว */
-            padding: 5px; /* ระยะห่างระหว่างโลโก้กับขอบ */
-            border-radius: 8px; /* ทำให้ขอบมน */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        .btn-true {
+            width: 100%;
+            max-width: 250px;
+            height: 60px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            padding: 0;
+            background: none;
         }
 
-        .error {
-            color: #d9534f;
-            font-weight: 600;
-            padding: 15px;
-            border: 1px solid #d9534f;
+        .btn-true img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .error-message {
+            color: #D8000C;
+            background-color: #FFD2D2;
+            border: 1px solid #D8000C;
             border-radius: 8px;
-            background-color: #f2dede;
+            padding: 15px;
+            font-weight: 600;
         }
     </style>
 </head>
 <body>
-    <div id="app">
-        <div v-if="phone">
-            <h3>กรุณาโอนเงินเข้าบัญชี TrueMoney</h3>
-            <div class="info-container">
-                <div class="copy-container">
-                    <span>บัญชี: {{ phone }}</span>
-                    <button class="copy-btn" @click="copyText(phone)" title="คัดลอกเบอร์โทรศัพท์">📋</button>
+
+<div id="app">
+    <div class="payment-card">
+        <div v-if="!error">
+            <h3>ชำระเงินผ่าน TrueMoney</h3>
+            <div class="info-section">
+                <div class="info-row">
+                    <span>บัญชี TrueMoney : <strong>{{ phone }}</strong></span>
+                    <button class="copy-btn" @click="copyText(phone, 'phone')" :class="{ copied: copiedField === 'phone' }">
+                        {{ copiedField === 'phone' ? 'คัดลอกแล้ว!' : 'คัดลอก' }}
+                    </button>
                 </div>
-                <div class="copy-container">
-                    <span>จำนวน: <b>{{ amount }}</b> ฿</span>
+                <div class="info-row">
+                    <span>จำนวนเงิน : <strong>{{ amount }} ฿</strong></span>
                 </div>
-                <div class="copy-container">
-                    <span>ข้อความ: {{ message }}</span>
-                    <button class="copy-btn" @click="copyText(message)" title="คัดลอกข้อความ">📋</button>
+                <div class="info-row">
+                    <span>ข้อความ (ใส่ในช่องข้อความ) : <strong>{{ message }}</strong></span>
+                    <button class="copy-btn" @click="copyText(message, 'message')" :class="{ copied: copiedField === 'message' }">
+                         {{ copiedField === 'message' ? 'คัดลอกแล้ว!' : 'คัดลอก' }}
+                    </button>
                 </div>
             </div>
-
-            <h3>หรือสแกน QR Code</h3>
             
-            <div id="qrcode-container">
-                <div id="qrcode"></div>
-                <img src="https://img.uxwing.com/wp-content/themes/uxwing/download/brands-social-media/true-money-wallet-logo-icon.png" class="qrcode-logo" alt="TrueMoney Logo">
+            <p style="color: #888; font-size: 14px; margin-top: 20px;">หรือสแกน QR Code เพื่อชำระเงิน</p>
+            <div id="qrcode"></div>
+            
+            <div v-if="isMobile" class="mobile-action">
+                <button class="btn-true" @click="openTrueMoneyApp">
+                    <img src="https://www.designil.com/wp-content/uploads/2017/01/truemoney-wallet-logo.png" alt="เปิดแอป TrueMoney">
+                </button>
             </div>
-
         </div>
-        <div class="error" v-else>
-            ไม่พบข้อมูลการชำระเงิน! <br>กรุณาตรวจสอบลิงก์อีกครั้ง
+        
+        <div v-if="error" class="error-message">
+            {{ error }}
         </div>
     </div>
+</div>
 
-    <script>
-        const { createApp } = Vue;
+<script>
+    const { createApp } = Vue;
 
-        createApp({
-            data() {
-                return {
-                    isMobile: false,
-                    phone: "",
-                    amount: "",
-                    message: "",
-                    deeplink: ""
-                };
-            },
-            mounted() {
-                this.isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                
-                const urlParams = new URLSearchParams(window.location.search);
-                this.phone = urlParams.get("phone") || "";
-                this.amount = urlParams.get("amount") || "";
-                this.message = urlParams.get("message") || "";
+    createApp({
+        data() {
+            return {
+                isMobile: false,
+                phone: "",
+                amount: "",
+                message: "",
+                error: null,
+                copiedField: null // ใช้ติดตามว่ากำลังคัดลอกฟิลด์ไหน
+            };
+        },
+        mounted() {
+            // 1. ตรวจสอบว่าเป็นอุปกรณ์มือถือหรือไม่
+            this.isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            // 2. ดึงค่าจาก URL Parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            this.phone = urlParams.get("phone") || null;
+            this.amount = urlParams.get("amount") || "0.00";
+            this.message = urlParams.get("message") || "ไม่ระบุ";
 
-                if (this.phone) {
-                    this.generateQR();
-                }
-
-                // *** เพิ่มโค้ดส่วนนี้กลับเข้ามาเพื่อให้เปิดแอปอัตโนมัติบนมือถือ ***
-                if (this.isMobile && this.phone) {
-                    this.openDeeplink();
-                }
-            },
-            methods: {
-                generateQR() {
-                    const methodData = JSON.stringify({
-                        "tmn_phone": this.phone,
-                        "tmn_msg": this.message,
-                        "tmn_amount": this.amount ? Number(this.amount) : undefined
-                    });
-
-                    this.deeplink = `ascendmoney://wallet.truemoney.co.th/app/660000000005?type=constant&method=${encodeURIComponent(methodData)}`;
-
-                    document.getElementById("qrcode").innerHTML = "";
-                    new QRCode(document.getElementById("qrcode"), {
-                        text: this.deeplink,
-                        width: 256,
-                        height: 256,
-                        colorDark: "#000000",
-                        colorLight: "#ffffff",
-                        // *** ตั้งค่า Error Correction เป็นระดับ H (สูงสุด) ***
-                        // เพื่อให้สแกนได้แม้มีโลโก้อยู่ตรงกลาง
-                        correctLevel: QRCode.CorrectLevel.H 
-                    });
-                },
-                openDeeplink() {
-                    if (this.deeplink) {
-                        window.location.href = this.deeplink;
-                    }
-                },
-                copyText(text) {
-                    navigator.clipboard.writeText(text).then(() => {
-                        alert("คัดลอกสำเร็จ: " + text);
-                    }).catch(err => {
-                        console.error("ไม่สามารถคัดลอกได้: ", err);
-                        alert("คัดลอกไม่สำเร็จ");
-                    });
-                }
+            // 3. ตรวจสอบข้อมูลและสร้าง QR Code
+            if (this.phone) {
+                this.generateQR();
+            } else {
+                this.error = "ไม่พบข้อมูลที่จำเป็น (เบอร์โทรศัพท์) ใน URL";
             }
-        }).mount("#app");
-    </script>
+        },
+        methods: {
+            generateQR() {
+                const methodData = JSON.stringify({
+                    "tmn_phone": this.phone,
+                    "tmn_msg": this.message,
+                    "tmn_amount": this.amount ? Number(this.amount) : undefined
+                });
+
+                const deeplink = `ascendmoney://wallet.truemoney.co.th/app/660000000005?type=constant&method=${encodeURIComponent(methodData)}`;
+                
+                // สร้าง QR Code จาก deeplink
+                new QRCode(document.getElementById("qrcode"), {
+                    text: deeplink,
+                    width: 200,
+                    height: 200
+                });
+            },
+            openTrueMoneyApp() {
+                // Method นี้จะถูกเรียกเมื่อผู้ใช้กดปุ่มบนมือถือเท่านั้น
+                const methodData = JSON.stringify({
+                    "tmn_phone": this.phone,
+                    "tmn_msg": this.message,
+                    "tmn_amount": this.amount
+                });
+                
+                const deeplink = `ascendmoney://wallet.truemoney.co.th/app/660000000005?type=constant&method=${encodeURIComponent(methodData)}`;
+                
+                // สั่งให้เปิด deeplink
+                window.location.href = deeplink;
+            },
+            copyText(text, fieldName) {
+                navigator.clipboard.writeText(text).then(() => {
+                    this.copiedField = fieldName;
+                    // เปลี่ยนสถานะกลับเป็นปกติหลังจาก 2 วินาที
+                    setTimeout(() => {
+                        this.copiedField = null;
+                    }, 2000);
+                }).catch(err => {
+                    console.error("การคัดลอกล้มเหลว: ", err);
+                    alert("คัดลอกไม่สำเร็จ");
+                });
+            }
+        }
+    }).mount("#app");
+</script>
+
 </body>
 </html>
