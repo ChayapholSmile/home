@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เครื่องคำนวณราคาแบบขั้นบันได</title>
+    <!-- โหลด Tailwind CSS CDN สำหรับการจัดรูปแบบที่สวยงามและตอบสนอง -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* กำหนดฟอนต์ Inter และพื้นหลัง */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e5e7eb;
+        }
+    </style>
+    <!-- โหลด SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md bg-white p-6 sm:p-8 rounded-xl shadow-2xl border border-gray-100">
+        
+        <h1 class="text-3xl font-extrabold text-gray-800 mb-2 text-center">
+            เครื่องคำนวณราคา
+        </h1>
+        <p class="text-center text-gray-500 mb-8 text-sm">
+            คำนวณราคาแบบขั้นบันได (Tiered Pricing)
+        </p>
+
+        <!-- Input Section -->
+        <div class="mb-6">
+            <label for="quantity-input" class="block text-sm font-medium text-gray-700 mb-2">
+                🔢 กรุณาใส่จำนวนชิ้นที่ต้องการซื้อ:
+            </label>
+            <input type="number" 
+                   id="quantity-input" 
+                   placeholder="เช่น 15, 100, 350"
+                   min="1"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg shadow-sm"
+                   onkeydown="if(event.key === 'Enter') calculatePrice()">
+        </div>
+
+        <!-- Calculation Button -->
+        <button onclick="calculatePrice()" 
+                class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg shadow-lg transition duration-300 transform hover:scale-[1.01] focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">
+            💰 คำนวณราคารวม
+        </button>
+        
+        <p class="mt-6 text-xs text-center text-gray-400">
+            ราคารวมจะแสดงในรูปแบบ SweetAlert2 พร้อมรายละเอียดการคำนวณ
+        </p>
+    </div>
+
+    <!-- โหลด SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
+    <script>
+        /**
+         * ฟังก์ชันหลักในการคำนวณราคาแบบขั้นบันได (Tiered Pricing)
+         * ใช้โครงสร้าง IF ต่อกันเพื่อปฏิบัติตามข้อกำหนดที่ห้ามใช้สูตรลัดหรือลูป
+         */
+        function calculatePrice() {
+            const quantityInput = document.getElementById('quantity-input');
+            const quantity = parseInt(quantityInput.value);
+
+            // 1. การตรวจสอบความถูกต้อง (Validation)
+            if (isNaN(quantity) || quantity <= 0) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'ข้อผิดพลาด',
+                    text: 'กรุณาป้อนจำนวนชิ้นที่ถูกต้อง (ต้องเป็นตัวเลขจำนวนเต็มบวก)',
+                    customClass: { popup: 'rounded-xl shadow-2xl' }
+                });
+                return;
+            }
+
+            let total_price = 0.0;
+            // HTML สำหรับแสดงรายละเอียดการคำนวณใน SweetAlert2
+            let breakdownHtml = 'รายละเอียดการคำนวณ:<ul class="list-disc pl-5 mt-2 space-y-1 text-left text-gray-700">';
+
+            // --------------------------------------------------------------------------------
+            // อัลกอริทึมการคำนวณแบบขั้นบันได (Tiered Pricing) ด้วย Sequential IFs
+            // pieces_in_tier = Math.min(quantity, end) - (start - 1);
+            // --------------------------------------------------------------------------------
+            
+            // Tier 1: 1 - 10 ชิ้น | ราคา: 1.00 บาท/ชิ้น
+            if (quantity >= 1) {
+                const start = 1;
+                const end = 10;
+                const price = 1.00;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 2: 11 - 20 ชิ้น | ราคา: 0.90 บาท/ชิ้น
+            if (quantity >= 11) {
+                const start = 11;
+                const end = 20;
+                const price = 0.90;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 3: 21 - 30 ชิ้น | ราคา: 0.80 บาท/ชิ้น
+            if (quantity >= 21) {
+                const start = 21;
+                const end = 30;
+                const price = 0.80;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 4: 31 - 40 ชิ้น | ราคา: 0.70 บาท/ชิ้น
+            if (quantity >= 31) {
+                const start = 31;
+                const end = 40;
+                const price = 0.70;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+            
+            // Tier 5: 41 - 50 ชิ้น | ราคา: 0.60 บาท/ชิ้น
+            if (quantity >= 41) {
+                const start = 41;
+                const end = 50;
+                const price = 0.60;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 6: 51 - 60 ชิ้น | ราคา: 0.50 บาท/ชิ้น
+            if (quantity >= 51) {
+                const start = 51;
+                const end = 60;
+                const price = 0.50;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 7: 61 - 70 ชิ้น | ราคา: 0.40 บาท/ชิ้น
+            if (quantity >= 61) {
+                const start = 61;
+                const end = 70;
+                const price = 0.40;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 8: 71 - 80 ชิ้น | ราคา: 0.30 บาท/ชิ้น
+            if (quantity >= 71) {
+                const start = 71;
+                const end = 80;
+                const price = 0.30;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 9: 81 - 85 ชิ้น | ราคา: 0.20 บาท/ชิ้น
+            if (quantity >= 81) {
+                const start = 81;
+                const end = 85;
+                const price = 0.20;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 10: 86 - 90 ชิ้น | ราคา: 0.19 บาท/ชิ้น
+            if (quantity >= 86) {
+                const start = 86;
+                const end = 90;
+                const price = 0.19;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+            
+            // Tier 11: 91 - 95 ชิ้น | ราคา: 0.18 บาท/ชิ้น
+            if (quantity >= 91) {
+                const start = 91;
+                const end = 95;
+                const price = 0.18;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 12: 96 - 100 ชิ้น | ราคา: 0.17 บาท/ชิ้น
+            if (quantity >= 96) {
+                const start = 96;
+                const end = 100;
+                const price = 0.17;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 13: 101 - 105 ชิ้น | ราคา: 0.16 บาท/ชิ้น
+            if (quantity >= 101) {
+                const start = 101;
+                const end = 105;
+                const price = 0.16;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 14: 106 - 110 ชิ้น | ราคา: 0.15 บาท/ชิ้น
+            if (quantity >= 106) {
+                const start = 106;
+                const end = 110;
+                const price = 0.15;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 15: 111 - 115 ชิ้น | ราคา: 0.14 บาท/ชิ้น
+            if (quantity >= 111) {
+                const start = 111;
+                const end = 115;
+                const price = 0.14;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 16: 116 - 120 ชิ้น | ราคา: 0.13 บาท/ชิ้น
+            if (quantity >= 116) {
+                const start = 116;
+                const end = 120;
+                const price = 0.13;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 17: 121 - 125 ชิ้น | ราคา: 0.12 บาท/ชิ้น
+            if (quantity >= 121) {
+                const start = 121;
+                const end = 125;
+                const price = 0.12;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 18: 126 - 130 ชิ้น | ราคา: 0.11 บาท/ชิ้น
+            if (quantity >= 126) {
+                const start = 126;
+                const end = 130;
+                const price = 0.11;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 19: 131 - 140 ชิ้น | ราคา: 0.10 บาท/ชิ้น
+            if (quantity >= 131) {
+                const start = 131;
+                const end = 140;
+                const price = 0.10;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 20: 141 - 150 ชิ้น | ราคา: 0.09 บาท/ชิ้น
+            if (quantity >= 141) {
+                const start = 141;
+                const end = 150;
+                const price = 0.09;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 21: 151 - 160 ชิ้น | ราคา: 0.08 บาท/ชิ้น
+            if (quantity >= 151) {
+                const start = 151;
+                const end = 160;
+                const price = 0.08;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 22: 161 - 170 ชิ้น | ราคา: 0.07 บาท/ชิ้น
+            if (quantity >= 161) {
+                const start = 161;
+                const end = 170;
+                const price = 0.07;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 23: 171 - 180 ชิ้น | ราคา: 0.06 บาท/ชิ้น
+            if (quantity >= 171) {
+                const start = 171;
+                const end = 180;
+                const price = 0.06;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 24: 181 - 200 ชิ้น | ราคา: 0.05 บาท/ชิ้น
+            if (quantity >= 181) {
+                const start = 181;
+                const end = 200;
+                const price = 0.05;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 25: 201 - 240 ชิ้น | ราคา: 0.04 บาท/ชิ้น
+            if (quantity >= 201) {
+                const start = 201;
+                const end = 240;
+                const price = 0.04;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 26: 241 - 280 ชิ้น | ราคา: 0.03 บาท/ชิ้น
+            if (quantity >= 241) {
+                const start = 241;
+                const end = 280;
+                const price = 0.03;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 27: 281 - 340 ชิ้น | ราคา: 0.02 บาท/ชิ้น
+            if (quantity >= 281) {
+                const start = 281;
+                const end = 340;
+                const price = 0.02;
+                const pieces_in_tier = Math.min(quantity, end) - (start - 1);
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ถึง ${Math.min(quantity, end)} ชิ้น: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+
+            // Tier 28: 341+ ชิ้น | ราคา: 0.01 บาท/ชิ้น
+            if (quantity >= 341) {
+                const start = 341;
+                const price = 0.01;
+                const pieces_in_tier = quantity - (start - 1); // จำนวนชิ้นทั้งหมดที่เกิน 340
+                const cost_of_tier = pieces_in_tier * price;
+                total_price += cost_of_tier;
+                if (pieces_in_tier > 0) {
+                    breakdownHtml += `<li>${start} ชิ้นขึ้นไป: ${pieces_in_tier} ชิ้น x ${price.toFixed(2)} บาท = ${cost_of_tier.toFixed(2)} บาท</li>`;
+                }
+            }
+            
+            breakdownHtml += '</ul>';
+
+            // 3. แสดงผลลัพธ์ด้วย SweetAlert2
+            Swal.fire({
+                icon: 'success',
+                title: '✅ คำนวณราคาเรียบร้อย!',
+                html: `
+                    <div class="text-center">
+                        <p class="text-xl font-medium text-gray-700 mb-4">จำนวนชิ้นทั้งหมด: <span class="font-bold text-blue-600">${quantity.toLocaleString()}</span> ชิ้น</p>
+                        <div class="p-3 bg-gray-50 rounded-lg border mb-4 text-sm">
+                            ${breakdownHtml}
+                        </div>
+                        <p class="text-3xl font-extrabold text-green-700 mt-6">
+                            ราคารวมสุทธิ: ${total_price.toFixed(2)} บาท
+                        </p>
+                    </div>
+                `,
+                confirmButtonText: 'ตกลง',
+                customClass: {
+                    popup: 'rounded-xl shadow-2xl',
+                    title: 'text-2xl font-bold text-gray-800',
+                    confirmButton: 'bg-blue-600 hover:bg-blue-700',
+                }
+            });
+        }
+    </script>
+</body>
+</html>
