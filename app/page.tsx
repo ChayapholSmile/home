@@ -2,102 +2,1138 @@ import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Bio Card</title>
+    <!-- โหลด Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- โหลด Marked.js สำหรับการแปลง Markdown เป็น HTML -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>/* ---------------------------------------------------- */
+/* CSS Variables for Light/Dark Theme */
+/* ---------------------------------------------------- */
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+/* Define colors for the Dark Theme (Default) */
+:root, [data-theme='dark'] {
+    --color-body-bg: #1e293b;         /* Slate-800 */
+    --color-card-bg: #2c2f33;         /* Discord Card Dark */
+    --color-text-primary: #ffffff;    /* White */
+    --color-section-bg: #202225;      /* Discord Secondary Dark */
+    --color-border-bg: #40444b;       /* Discord Gray */
+    --color-text-secondary: #94a3b8;  /* Slate-400 */
+    --color-dot-border: #2c2f33;      /* Matches card BG */
+    --color-accent: #5865F2;          /* Discord Blue */
+}
+
+/* Define colors for the Light Theme */
+[data-theme='light'] {
+    --color-body-bg: #f1f5f9;         /* Slate-100 */
+    --color-card-bg: #ffffff;         /* White */
+    --color-text-primary: #1e293b;    /* Slate-800 */
+    --color-section-bg: #e2e8f0;      /* Slate-200 */
+    --color-border-bg: #64748b;       /* Slate-600 */
+    --color-text-secondary: #64748b;  /* Slate-600 */
+    --color-dot-border: #ffffff;      /* Matches card BG */
+    --color-accent: #5865F2;          /* Discord Blue */
+}
+
+body {
+    /* ใช้ Kanit เป็นหลักสำหรับภาษาไทย, Inter สำหรับภาษาอังกฤษ/ตัวเลข */
+    /* เพิ่มฟอนต์ fallback สำหรับ Emoji และสัญลักษณ์พิเศษ */
+    font-family: 'Kanit', 'Inter', 'Segoe UI Emoji', 'Apple Color Emoji', 
+                'Noto Color Emoji', 'Segoe UI Symbol', sans-serif;
+    background-color: var(--color-body-bg); 
+    transition: background-color 300ms, color 300ms;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-border-bg);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-secondary);
+}
+
+/* Animation for loading overlay */
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.animate-pulse-custom {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Glow effect for status */
+.status-glow {
+    box-shadow: 0 0 10px currentColor;
+}
+
+/* Smooth transitions for all interactive elements */
+.transition-all-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ✅ ปรับโครงสร้างใหม่: แบนเนอร์แยกจากอวาตาร์โดยสมบูรณ์ */
+.banner-separate {
+    position: relative;
+    height: 120px; /* ความสูงแบนเนอร์เท่านั้น */
+    margin-bottom: 0; /* ไม่มี margin ด้านล่าง */
+    overflow: hidden; /* ซ่อนส่วนเกิน */
+    padding-bottom: 0; /* ไม่มี padding */
+    border-radius: 12px 12px 0 0; /* มุมโค้งเฉพาะด้านบน */
+}
+
+/* ✅ อวาตาร์อยู่ในแถวใหม่แยกต่างหาก - ปรับให้อยู่กลางแน่นอน */
+.avatar-separate {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 40px 0 20px 0;
+    position: relative;
+    width: 100%;
+}
+
+/* ✅ Container สำหรับอวาตาร์และจุดสถานะ - ปรับให้อยู่กลางแน่นอน */
+#avatar-container {
+    position: relative;
+    width: 140px;
+    height: 140px;
+    margin: 0 auto; /* ✅ สำคัญ: ทำให้อยู่กลางแน่นอน */
+}
+
+/* ✅ อวาตาร์อยู่ในแถวใหม่ - ปรับให้อยู่กลางแน่นอน */
+#profile-avatar {
+    width: 140px;
+    height: 140px;
+    object-fit: cover;
+    object-position: center center;
+    border-width: 6px;
+    display: block;
+    border-color: var(--color-dot-border);
+    border-radius: 50%;
+    position: relative;
+}
+
+/* ✅ กรอบอวาตาร์ - ปรับให้อยู่กลางแน่นอน */
+#profile-frame {
+    width: 156px;
+    height: 156px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* ✅ จุดสถานะในตำแหน่งใหม่ - แก้ไขให้อยู่กับอวาตาร์และอยู่มุมขวาล่าง */
+#status-indicator-container {
+    width: 36px;
+    height: 36px;
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    border-color: var(--color-dot-border);
+    border-width: 3px;
+    border-radius: 50%;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ✅ ส่วนหัว */
+.flex.flex-col.items-center.mb-6.relative.z-10 {
+    margin-top: 0;
+    padding-top: 0;
+}
+
+/* ✅ การ์ดหลัก */
+#bio-card {
+    position: relative;
+    overflow: hidden;
+    padding-top: 0;
+}
+
+/* Style for inline emoji in bio */
+.inline-emoji {
+    display: inline-block;
+    height: 1.2em;
+    width: auto;
+    vertical-align: middle;
+    margin: 0 0.1em;
+}
+
+/* ✅ เพิ่ม: รองรับการแสดง Emoji และสัญลักษณ์พิเศษ */
+@font-face {
+    font-family: 'Twemoji Mozilla';
+    src: local('Apple Color Emoji'), 
+         local('Segoe UI Emoji'), 
+         local('Segoe UI Symbol'), 
+         local('Noto Color Emoji');
+    unicode-range: U+1F000-1F644, U+203C-3299;
+}
+
+/* ✅ เพิ่ม: รองรับอักขระพิเศษเพิ่มเติม */
+.emoji-support {
+    font-family: 'Twemoji Mozilla', 'Apple Color Emoji', 'Segoe UI Emoji', 
+                'Segoe UI Symbol', 'Noto Color Emoji', 'Android Emoji', 
+                'Kanit', 'Inter', sans-serif;
+}</style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <!-- Discord Bio Card Container -->
+    <div id="bio-card" 
+         class="w-full max-w-md rounded-2xl shadow-2xl p-6 transition-all-smooth relative overflow-hidden"
+         style="background-color: var(--color-card-bg); color: var(--color-text-primary);">
+        
+        <!-- Background gradient overlay -->
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-600/5 pointer-events-none z-0"></div>
+        
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="absolute inset-0 bg-slate-900/95 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center z-50 transition-opacity duration-500">
+            <!-- Spinner -->
+            <div class="animate-spin rounded-full h-16 w-16 border-4 border-t-4 border-indigo-500 border-gray-700"></div>
+            <p class="mt-4 text-indigo-300 font-bold text-lg">กำลังดึงข้อมูล Discord...</p>
+            <p class="mt-2 text-sm text-gray-400">โปรดรอสักครู่</p>
+            <div class="mt-4 w-48 h-1.5 bg-gray-700 rounded-full overflow-hidden">
+                <div class="h-full bg-indigo-500 animate-pulse-custom" style="width: 60%"></div>
+            </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
+
+        <!-- ✅ แก้ไข: Profile Banner แยกส่วนสมบูรณ์ -->
+        <div id="profile-banner" 
+             class="banner-separate -mx-6 -mt-6 rounded-t-2xl transition-all duration-500 relative" 
+             style="background-color: #5865F2;">
+            <!-- Banner overlay -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+        </div>
+
+        <!-- ✅ แก้ไข: Avatar Container แยกเป็นอีกแถว -->
+        <div id="avatar-container" class="avatar-separate">
+            <!-- 1. Avatar Frame (กรอบรูปโปรไฟล์) -->
+            <img id="profile-frame" src="" alt="กรอบโปรไฟล์" 
+                class="transition-all duration-300 opacity-0 z-20">
+
+            <!-- 2. Avatar Image (รูปโปรไฟล์) -->
+            <img id="profile-avatar" src="https://placehold.co/128x128/5865F2/FFFFFF?text=Loading" alt="รูปโปรไฟล์" 
+                class="transition-all duration-500 ease-in-out z-10 border-4">
+
+            <!-- 3. Status Indicator Container -->
+            <div id="status-indicator-container" 
+                 class="transition-all-smooth z-30 flex items-center justify-center status-glow">
+                <div id="status-icon-wrapper" class="w-full h-full text-white flex items-center justify-center">
+                    <!-- SVG icon will be injected here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Theme Toggle Button (สลับ Dark/Light Mode) -->
+        <button id="theme-toggle" class="absolute top-6 right-6 text-gray-300 hover:text-white transition-all-smooth z-40 bg-black/30 hover:bg-black/50 backdrop-blur-sm p-2 rounded-full">
+            <!-- Moon icon (แสดงเมื่อเป็น Light Mode, กดเพื่อไป Dark Mode) -->
+            <svg id="moon-icon" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+            <!-- Sun icon (แสดงเมื่อเป็น Dark Mode, กดเพื่อไป Light Mode) -->
+            <svg id="sun-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        </button>
+        
+        <!-- Header (Name, Username, Server Tag/Badge) -->
+        <div class="flex flex-col items-center mb-6 relative z-10">
+            <!-- Display Name -->
+            <h1 class="flex items-center justify-center text-2xl font-bold text-gray-100 flex-wrap emoji-support" style="color: var(--color-text-primary);">
+                <span id="user-display-name">กำลังโหลด...</span>
+            </h1>
+            
+            <!-- Username/Discord Tag -->
+            <p id="user-username" class="text-base font-medium mt-1 emoji-support" style="color: var(--color-text-secondary);">
+                @Loading
+            </p>
+            
+            <!-- SERVER TAG & SERVER BADGE ICON COMBINED -->
+            <div id="server-tag-container" class="mt-2">
+                <span id="server-tag-badge" 
+                      class="px-3 py-1 text-xs font-bold text-white bg-indigo-700 rounded-full shadow-md inline-flex items-center hidden transition-all duration-300 hover:bg-indigo-600">
+                    <!-- Icon and Text will be injected here -->
+                </span>
+            </div>
+            
+            <!-- Discord Badges Container -->
+            <div id="user-badges-container" class="flex flex-wrap justify-center gap-2 mt-3">
+                <!-- Badges will be injected here -->
+            </div>
+        </div>
+        
+        <!-- Bio Section -->
+        <div id="user-bio-container" class="mt-4 hidden space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wider flex items-center" style="color: var(--color-text-secondary);">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                </svg>
+                เกี่ยวกับฉัน
+            </p>
+            <div class="p-4 rounded-xl transition-all-smooth hover:shadow-md" style="background-color: var(--color-section-bg);">
+                <div id="user-bio-text" class="text-sm leading-relaxed max-h-40 overflow-y-auto emoji-support" style="color: var(--color-text-primary);">
+                    <!-- Bio content (HTML from Markdown and converted timestamps) will be injected here -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Connected Accounts Section -->
+        <div id="connected-accounts-container" class="mt-4 hidden space-y-2">
+            <p class="text-xs font-semibold uppercase tracking-wider flex items-center" style="color: var(--color-text-secondary);">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.882L15.324 10.22a4 4 0 000-5.656l-4-4a4 4 0 00-5.656 0l-1.1 1.1"></path>
+                </svg>
+                บัญชีที่เชื่อมต่อ
+            </p>
+            <div id="accounts-list" class="grid grid-cols-1 gap-2">
+                <!-- Connected accounts will be injected here -->
+            </div>
+        </div>
+
+        <!-- Status and Details -->
+        <div class="space-y-4 mt-6">
+            
+            <p class="text-xs font-semibold uppercase tracking-wider flex items-center" style="color: var(--color-text-secondary);">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+                สถานะ Discord
+            </p>
+
+            <!-- Custom Status Text (type 4) -->
+            <div id="custom-status-container" class="flex items-center space-x-3 p-3 rounded-xl border border-transparent hover:border-indigo-500/50 transition-all-smooth"
+                 style="background-color: var(--color-section-bg);">
+                <!-- Icon color changed to use var(--color-text-secondary) -->
+                <svg class="h-5 w-5 flex-shrink-0" style="color: var(--color-text-secondary);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 10.5c0 1.25-.99 2.25-2.25 2.25H4.25c-1.25 0-2.25-.99-2.25-2.25S2.99 8.25 4.25 8.25h15.5c1.26 0 2.25 1 2.25 2.25z"/>
+                    <path d="M10 18h4"/>
+                </svg>
+                <p id="custom-status-text" class="text-sm italic truncate emoji-support" style="color: var(--color-text-primary);">กำลังดึงสถานะ...</p>
+            </div>
+
+            <!-- Spotify Listening Status (Activity name 'Spotify') -->
+            <div id="spotify-status-container" class="hidden transition-all-smooth bg-[#1db954] bg-opacity-10 p-4 rounded-xl flex-col border border-transparent hover:border-[#1db954]/50">
+                <p class="text-xs font-semibold uppercase text-[#1db954] mb-2 flex items-center space-x-2">
+                    <!-- Spotify Icon (SVG) -->
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c6.627 0 12 5.373 12 12s-5.373 12-12 12S0 18.627 0 12 5.373 0 12 0zm5.11 17.51a.81.81 0 0 0 .73-.39c.27-.47-.07-.79-.54-.92a6.3 6.3 0 0 0-4.48-1.55c-1.12.02-2.14.3-3.08.83a.76.76 0 0 0-.17.15c-.17.17-.18.4-.04.6a.79.79 0 0 0 .61.34c.05 0 .1 0 .15-.02a5.3 5.3 0 0 1 2.5-1.54 5.3 5.3 0 0 1 3.2.14c.48.1.88.24 1.25.43zM12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm1.6 15.15a.8.8 0 0 0 .73-.39c.27-.47-.07-.79-.54-.92a6.3 6.3 0 0 0-4.48-1.55c-1.12.02-2.14.3-3.08.83a.76.76 0 0 0-.17.15c-.17.17-.18.4-.04.6a.79.79 0 0 0 .61.34c.05 0 .1 0 .15-.02a5.3 5.3 0 0 1 2.5-1.54 5.3 5.3 0 0 1 3.2.14c.48.1.88.24 1.25.43z"/></svg>
+                    <span>กำลังฟัง Spotify</span>
+                </p>
+                
+                <div class="flex items-center space-x-3 mt-1">
+                    <!-- Album Art -->
+                    <img id="spotify-album-art" class="w-12 h-12 rounded-lg object-cover flex-shrink-0 shadow-md" src="" alt="Album Art">
+
+                    <!-- Song Details (ใช้สีขาว/ดำ ตามธีมหลัก) -->
+                    <div class="min-w-0 flex-1">
+                        <p id="spotify-song" class="font-bold truncate emoji-support" style="color: var(--color-text-primary);">...</p>
+                        <p id="spotify-artist" class="text-sm truncate mt-0.5 emoji-support" style="color: var(--color-text-secondary);">โดย ...</p>
+                        <p id="spotify-album" class="text-xs truncate mt-0.5 emoji-support" style="color: var(--color-text-secondary);">บน ...</p>
+                    </div>
+                </div>
+
+                <!-- Progress Bar and Time Display -->
+                <div id="spotify-progress-area" class="mt-3">
+                    <!-- ใช้ CSS Variable สำหรับสีพื้นหลัง Progress Bar -->
+                    <div id="spotify-progress-bar-bg" class="w-full h-1.5 rounded-full overflow-hidden" 
+                         style="background-color: var(--color-border-bg);">
+                        <div id="spotify-progress-bar" class="h-full bg-[#1db954] transition-all duration-100 ease-linear" style="width: 0%;"></div>
+                    </div>
+                    <div class="flex justify-between text-xs mt-1.5" style="color: var(--color-text-secondary);">
+                        <span id="spotify-elapsed-time">0:00</span>
+                        <span id="spotify-total-duration">0:00</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Active Clients Status (Desktop/Mobile/Web) -->
+            <div id="active-clients-container" class="hidden transition-all-smooth p-3 rounded-xl flex-col border border-transparent hover:border-indigo-500/50"
+                 style="background-color: var(--color-section-bg);">
+                <p class="text-xs font-semibold uppercase mb-2 flex items-center space-x-2" style="color: var(--color-text-secondary);">
+                    <!-- Globe Icon color changed to use var(--color-text-secondary) -->
+                    <svg class="w-4 h-4" style="color: var(--color-text-secondary);" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v2.476L5.657 14.85l-.752-.614a.5.5 0 00-.638.163l-.752.614a.5.5 0 00.163.638l.752.614zM16 11h2.945M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <span>ใช้งานอยู่บน</span>
+                </p>
+                <p id="active-clients-text" class="text-sm emoji-support" style="color: var(--color-text-primary);">...</p>
+            </div>
+            
+        </div>
+        
+        <!-- Discord Chat Button -->
+        <a id="discord-chat-button" 
+           href="#" 
+           target="_blank" 
+           class="mt-6 w-full flex items-center justify-center space-x-2 py-3.5 bg-[#5865F2] hover:bg-[#4752C4] text-white font-bold rounded-xl shadow-lg transition-all-smooth transform hover:scale-[1.01] hover:shadow-xl relative overflow-hidden group">
+           <!-- Button glow effect -->
+           <div class="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-600 opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+            <!-- Discord Icon (SVG) -->
+            <svg class="w-6 h-6 z-10" viewBox="0 0 127.18 97.41" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M107.82 8.78c-10.42-5.46-21.72-8.49-33.31-9.14a.14.14 0 0 0-.13.06c-11.45 6.27-22.18 14.77-32.06 25.13-17.65 17.58-29.42 39.88-34.92 63.88a.14.14 0 0 0 .15.17c3.21.36 6.44.49 9.6.38 3.51-.12 7.02-.63 10.46-1.55a.14.14 0 0 0 .14-.1c.32-.82.64-1.63.92-2.48.51-1.51 1.01-3.03 1.48-4.57a.14.14 0 0 0-.08-.15c-1.39-.77-2.78-1.56-4.14-2.42a.14.14 0 0 0-.13-.02c-.52.26-1.04.53-1.56.81-1.61.85-3.18 1.63-4.69 2.39a.14.14 0 0 0-.14.05c-1.92 1.34-3.79 2.76-5.63 4.22a.14.14 0 0 0-.03.18c.99 1.1 2.05 2.16 3.16 3.19a.14.14 0 0 0 .18.03c15.2-9.67 29.35-21.37 42.66-35.09 7.74-8.1 14.88-16.7 21.41-25.99 2.5-3.52 4.79-7.14 6.88-10.87.52-.92 1.04-1.84 1.55-2.77a.14.14 0 0 0-.01-.17c-1.04-1.42-2.11-2.8-3.23-4.14-.12-.14-.24-.28-.35-.42a.14.14 0 0 0-.12-.03c-1.28.32-2.58.55-3.88.7-.22.02-.45.03-.68.04-1.35.07-2.71.07-4.06 0a.14.14 0 0 0-.14.07c-1.24 1.58-2.51 3.13-3.8 4.65-2.26 2.66-4.57 5.29-6.91 7.89a.14.14 0 0 0-.06.1c.06.67.12 1.35.17 2.03.04.37.07.74.12 1.11.08.7.17 1.4.25 2.1a.14.14 0 0 0 .16.14c1.23.11 2.47.16 3.71.16 1.43 0 2.87-.06 4.3-.17.18-.01.35-.04.52-.06.1-.02.2-.03.3-.06a.14.14 0 0 0 .09-.09c.35-1.07.66-2.15.93-3.25.13-.56.24-1.12.35-1.7a.14.14 0 0 0-.03-.13c-1.12-1.3-2.28-2.55-3.48-3.75a.14.14 0 0 0-.17-.03c-1.3.43-2.58.91-3.84 1.45a.14.14 0 0 0-.14.07c-2.7 3.32-5.49 6.57-8.38 9.77a.14.14 0 0 0-.07.13c-.15.8-.3 1.59-.47 2.37-.12.56-.27 1.11-.42 1.66a.14.14 0 0 0 .05.15c.67.3 1.35.58 2.02.87 1.8.76 3.59 1.53 5.37 2.36.2.09.4.18.6.27a.14.14 0 0 0 .18-.03c15.25-9.67 29.41-21.36 42.7-35.1 7.74-8.1 14.88-16.7 21.4-26 2.5-3.52 4.78-7.14 6.87-10.88.52-.92 1.04-1.84 1.55-2.77a.14.14 0 0 0-.01-.17c-1.04-1.42-2.1-2.8-3.22-4.14-.12-.14-.24-.28-.35-.42a.14.14 0 0 0-.12-.03c-1.28.32-2.58.55-3.88.7-.22.02-.45.03-.68.04-1.35.07-2.71.07-4.06 0a.14.14 0 0 0-.14.07c-1.24 1.58-2.51 3.13-3.8 4.65-2.26 2.66-4.57 5.29-6.91 7.89a.14.14 0 0 0-.06.1c.06.67.12 1.35.17 2.03.04.37.07.74.12 1.11.08.7.17 1.4.25 2.1a.14.14 0 0 0 .16.14c1.23.11 2.47.16 3.71.16 1.43 0 2.87-.06 4.3-.17.18-.01.35-.04-.52-.06.1-.02.2-.03.3-.06a.14.14 0 0 0 .09-.09c.35-1.07.66-2.15.93-3.25.13-.56.24-1.12.35-1.7a.14.14 0 0 0-.03-.13c-1.12-1.3-2.28-2.55-3.48-3.75a.14.14 0 0 0-.17-.03c-1.3.43-2.58.91-3.84 1.45a.14.14 0 0 0-.14.07c-2.7 3.32-5.49 6.57-8.38 9.77a.14.14 0 0 0-.07.13c-.15.8-.3 1.59-.47 2.37-.12.56-.27 1.11-.42 1.66a.14.14 0 0 0 .05.15c-.67.3-1.35.58-2.02.87-1.8.76-3.59 1.53-5.37 2.36-.2.09-.4.18-.6.27a.14.14 0 0 0-.18-.03c-2.31 2.92-4.66 5.79-7.04 8.63a.14.14 0 0 0-.05.16c.38 2.11.83 4.19 1.37 6.27a.14.14 0 0 0 .15.1c3.12-.91 6.13-2.02 8.94-3.32a.14.14 0 0 0 .13-.02c1.07-.38 2.14-.77 3.22-1.18.25-.1.5-.22.75-.32a.14.14 0 0 0 .18.03c.89-.57 1.76-1.17 2.59-1.78.27-.2.53-.41.79-.61a.14.14 0 0 0 .16-.01c.28.09.55.19.82.28 1.44.47 2.9.89 4.38 1.25a.14.14 0 0 0 .16-.04z"/>
+            </svg>
+            <span class="z-10">แชทกับฉันบน Discord</span>
         </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        
+        <!-- Footer Info -->
+        <p class="mt-6 text-xs text-center" style="color: var(--color-text-secondary);">
+            ดึงข้อมูลโปรไฟล์แบบเรียลไทม์จาก Discord API
+        </p>
+
     </div>
+
+    <script>
+        // *** ⚠️ สำคัญ: กรุณาเปลี่ยนเลข ID นี้เป็น Discord User ID ของคุณ ***
+        const DISCORD_USER_ID = "1148589260786638971"; 
+        
+        // 1. Lanyard API (สำหรับสถานะและกิจกรรม)
+        const LANYARD_ENDPOINT = 'https://api.lanyard.rest/v1/users/' + DISCORD_USER_ID; 
+        
+        // 2. Profile API (สำหรับ Banner, Accent Color, Badges, Bio, Connected Accounts)
+        const PROFILE_API_ENDPOINT = `https://dcdn.dstn.to/profile/${DISCORD_USER_ID}`;
+        const BADGE_ICON_BASE_URL = 'https://cdn.discordapp.com/badge-icons/';
+
+        // DOM Elements
+        const avatarImg = document.getElementById('profile-avatar');
+        const statusIndicatorContainer = document.getElementById('status-indicator-container');
+        const statusIconWrapper = document.getElementById('status-icon-wrapper');
+        
+        const userDisplayName = document.getElementById('user-display-name');
+        const userUsername = document.getElementById('user-username'); 
+        const customStatusText = document.getElementById('custom-status-text');
+        const profileFrame = document.getElementById('profile-frame');
+        const profileBanner = document.getElementById('profile-banner'); 
+        const serverTagBadge = document.getElementById('server-tag-badge'); 
+        const activeClientsContainer = document.getElementById('active-clients-container'); 
+        const activeClientsText = document.getElementById('active-clients-text'); 
+        const discordChatButton = document.getElementById('discord-chat-button'); 
+        const userBadgesContainer = document.getElementById('user-badges-container'); 
+        
+        // NEW: Bio and Connected Accounts Elements
+        const userBioContainer = document.getElementById('user-bio-container');
+        const userBioText = document.getElementById('user-bio-text');
+        const connectedAccountsContainer = document.getElementById('connected-accounts-container');
+        const accountsList = document.getElementById('accounts-list');
+
+        // Spotify Elements
+        const spotifyContainer = document.getElementById('spotify-status-container');
+        const spotifySong = document.getElementById('spotify-song');
+        const spotifyArtist = document.getElementById('spotify-artist');
+        const spotifyAlbum = document.getElementById('spotify-album');
+        const spotifyAlbumArt = document.getElementById('spotify-album-art');
+        
+        // Spotify Progress Elements
+        const spotifyProgressBar = document.getElementById('spotify-progress-bar');
+        const spotifyElapsedTime = document.getElementById('spotify-elapsed-time');
+        const spotifyTotalDuration = document.getElementById('spotify-total-duration');
+        
+        // Loading Overlay Element (ใหม่)
+        const loadingOverlay = document.getElementById('loading-overlay'); 
+
+        // Theme Toggle Elements
+        const themeToggle = document.getElementById('theme-toggle');
+        const moonIcon = document.getElementById('moon-icon');
+        const sunIcon = document.getElementById('sun-icon');
+        
+        // Global state tracking
+        let spotifyProgressIntervalId = null;
+        let previousPresence = ''; 
+        let previousAvatarDecorationUrl = null; 
+        
+
+        // ----------------------------------------------------
+        // --- Utility Functions ---
+        // ----------------------------------------------------
+
+        /**
+         * Converts milliseconds to M:SS format.
+         */
+        function formatTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        /**
+         * Gets the SVG icon for a connected account type.
+         */
+        function getAccountIcon(type) {
+            // All icons are 16x16 or adjusted to fit w-4 h-4
+            switch (type.toLowerCase()) {
+                case 'github':
+                    return `<svg class="w-4 h-4" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87-.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2.0-.21.15-.46.55-.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>`;
+                case 'spotify':
+                    return `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.11 17.51a.81.81 0 0 0 .73-.39c.27-.47-.07-.79-.54-.92a6.3 6.3 0 0 0-4.48-1.55c-1.12.02-2.14.3-3.08.83a.76.76 0 0 0-.17.15c-.17.17-.18.4-.04.6a.79.79 0 0 0 .61.34c.05 0 .1 0 .15-.02a5.3 5.3 0 0 1 2.5-1.54 5.3 5.3 0 0 1 3.2.14c.48.1.88.24 1.25.43zM12 2c5.523 0 10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2zm1.6 15.15a.8.8 0 0 0 .73-.39c.27-.47-.07-.79-.54-.92a6.3 6.3 0 0 0-4.48-1.55c-1.12.02-2.14.3-3.08.83a.76.76 0 0 0-.17.15c-.17.17-.18.4-.04.6a.79.79 0 0 0 .61.34c.05 0 .1 0 .15-.02a5.3 5.3 0 0 1 2.5-1.54 5.3 5.3 0 0 1 3.2.14c.48.1.88.24 1.25.43z"/></svg>`;
+                case 'youtube':
+                    return `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M21.58 7.15c-.23-.86-.91-1.54-1.77-1.77C18.25 5 12 5 12 5s-6.25 0-7.81.38c-.86.23-1.54.91-1.77 1.77C2 8.75 2 12 2 12s0 3.25.38 4.81c.23.86.91 1.54 1.77 1.77C5.75 19 12 19 12 19s6.25 0 7.81-.38c.86-.23 1.54-.91 1.77-1.77C22 15.25 22 12 22 12s0-3.25-.38-4.85zM9.75 15.5v-7l6.5 3.5-6.5 3.5z"/></svg>`;
+                case 'twitch':
+                    return `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M3.5 0L0 4.19v15.62h5.5v4.19h4.19l4.19-4.19h4.19V0H3.5zm17.75 16.94l-3.21 3.21h-3.21l-3.21-3.21H5.5V1.05h15.75v15.89zM15.75 6.32h-1.05v4.19h1.05V6.32zm-4.19 0H10.5v4.19h1.05V6.32z"/></svg>`;
+                case 'twitter':
+                    return `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 4.34c.82-.2 1.62-.25 2.4-.1.35.07.65.25.85.55.2.3.2.65 0 1-.2.35-.5.55-.85.65-.6.17-1.2.22-1.8.15-2.07-.3-4.08-1.28-5.74-2.88-1.66-1.6-2.64-3.61-2.88-5.68-.07-.58-.02-1.18.15-1.78.1-.35.3-.65.65-.85.35-.2.7-.2 1.05 0 .75.18 1.48.45 2.15.75.25.1.5.15.75.15.5 0 1-.1 1.5-.3-.32-.2-.65-.4-1-.58-.35-.2-.7-.35-1.05-.4-.17-.03-.35-.05-.52-.05-.4 0-.8.03-1.2.1.2.5.4 1.05.6 1.6.2.55.4 1.1.6 1.65.1.3.15.65.15 1 0 .2-.05.4-.1.6.25.1.5.2.75.3.4.15.8.3 1.2.45 1.45.55 2.8.9 4.1.95 1.35.05 2.7.05 4-.05.3-.02.6-.02.9-.02.7 0 1.4.1 2.1.3.2.05.4.1.6.15.3.08.6.2.9.38 0-.08 0-.17 0-.25 0-.6-.05-1.2-.1-1.8.2-.1.4-.25.6-.4.4-.3.6-.65.6-1.05s-.25-.85-.6-1.15c-.35-.3-.75-.45-1.15-.45s-.8.15-1.15.4c-1.2 1.15-2.65 2.05-4.25 2.65-1.6.6-3.3.9-5 .85-.15 0-.3 0-.45-.02-.12-.02-.25-.03-.38-.03-.35 0-.7.05-1.05.15-.35.1-.7.2-1.05.35 1.55-1.4 3.3-2.5 5.25-3.3.4-.15.8-.25 1.2-.35.3-.1.6-.2.9-.3-.2-.45-.4-.9-.6-1.35-.2-.45-.4-.9-.6-1.35z"/></svg>`;
+                default:
+                    // Link icon for unsupported types
+                    return `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.882L15.324 10.22a4 4 0 000-5.656l-4-4a4 4 0 00-5.656 0l-1.1 1.1"/></svg>`;
+            }
+        }
+
+        /**
+         * Maps Discord presence status to the correct icon and Tailwind CSS color class.
+         * @param {object} data - The Discord user data object containing presence and active_mobile.
+         * @returns {{iconHtml: string, colorClass: string}}
+         */
+        function getStatusData(data) {
+            const presence = data.presence.toLowerCase();
+            const activeMobile = data.active_mobile;
+            let iconHtml = '';
+            let colorClass = 'bg-gray-500 border-2 border-white'; // Default to offline/gray with white border
+
+            switch (presence) {
+                case 'online':
+                    colorClass = 'bg-green-500';
+                    if (activeMobile) {
+                        // Phone Icon for Mobile Online (w-5 h-5 for better fit)
+                        iconHtml = `
+                            <!-- Mobile Icon (Phone) w-5 h-5 -->
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M15 2H9C7.89543 2 7 2.89543 7 4V20C7 21.1046 7.89543 22 9 22H15C16.1046 22 17 21.1046 17 20V4C17 2.89543 16.1046 2 15 2Z M12 19.5C11.1716 19.5 10.5 18.8284 10.5 18C10.5 17.1716 11.1716 16.5 12 16.5C12.8284 16.5 13.5 17.1716 13.5 18C13.5 18.8284 12.8284 19.5 12 19.5Z" fill="white"/>
+                            </svg>
+                        `;
+                    } else {
+                        // Green Dot for Desktop/Web Online (w-4 h-4 for better visibility inside)
+                        iconHtml = `<div class="w-4 h-4 rounded-full" style="background-color: white;"></div>`; 
+                    }
+                    break;
+
+                case 'idle':
+                    colorClass = 'bg-amber-500';
+                    // Crescent Moon Icon for Idle (w-5 h-5 for better fit)
+                    iconHtml = `
+                        <!-- Idle Icon (Crescent Moon) w-5 h-5 -->
+                        <svg class="w-5 h-5 transform -rotate-45" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="white"/>
+                        </svg>
+                    `;
+                    break;
+
+                case 'dnd':
+                    colorClass = 'bg-red-500';
+                    // Minus/DND Icon (w-5 h-5 for better fit)
+                    iconHtml = `
+                        <!-- DND Icon (Minus) w-5 h-5 -->
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4 11H8v-2h8v2z" fill="white"/>
+                        </svg>
+                    `;
+                    break;
+
+                case 'offline':
+                default:
+                    colorClass = 'bg-gray-500 border-2 border-white';
+                    // Gray Dot for Offline (container color is gray with white border, inner dot is white)
+                    iconHtml = `<div class="w-3 h-3 rounded-full" style="background-color: white;"></div>`; 
+                    break;
+            }
+
+            return { iconHtml, colorClass };
+        }
+
+        /**
+         * Fetches real Discord data from Lanyard API and Profile API using exponential backoff.
+         */
+        async function fetchDiscordData(retries = 0) {
+            let lanyardData = null;
+            let profileData = {};
+
+            try {
+                // 1. Fetch Lanyard Data (for presence and activities)
+                const lanyardResponse = await fetch(LANYARD_ENDPOINT);
+                
+                if (lanyardResponse.ok) {
+                    lanyardData = await lanyardResponse.json();
+                } else {
+                    if (lanyardResponse.status === 404) {
+                         console.error(`[Lanyard Error] User ID "${DISCORD_USER_ID}" not found or not tracked.`);
+                    }
+                    // Continue even if Lanyard fails, as we might still get data from Profile API
+                }
+                
+                // 2. Fetch Profile API Data (for banner, accent color, and badges, bio, connected accounts)
+                try {
+                    const profileResponse = await fetch(PROFILE_API_ENDPOINT);
+                    if (profileResponse.ok) {
+                        profileData = await profileResponse.json();
+                    } else {
+                        console.warn(`[Profile API] Could not fetch data from ${PROFILE_API_ENDPOINT}. Status: ${profileResponse.status}`);
+                    }
+                } catch (e) {
+                    console.error("[Profile API] Fetch failed:", e);
+                }
+
+                if (!lanyardData && Object.keys(profileData).length === 0) {
+                    throw new Error('Could not fetch data from either Lanyard or Profile API.');
+                }
+                
+                // Use Lanyard data if available, otherwise fallback to Profile API's user object
+                const user = lanyardData?.data?.discord_user || profileData.user || {};
+                const lanyardRootData = lanyardData?.data || {};
+                const dcdnUser = profileData.user || {};
+                const dcdnUserProfile = profileData.user_profile || {}; 
+                
+                // Find activities (only available from Lanyard)
+                const activities = lanyardRootData.activities || [];
+                const customStatusActivity = activities.find(a => a.type === 4);
+                const spotifyActivity = activities.find(a => a.name === 'Spotify' && a.type === 2); 
+                const spotifyDataFromRoot = lanyardRootData.spotify; 
+
+                // Construct avatar URL
+                const avatarUrl = user.avatar 
+                    ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`
+                    : `https://cdn.discordapp.com/embed/avatars/${user.discriminator % 5}.png?size=128`; 
+                
+                // Get Avatar Decoration Hash
+                const decorationAsset = user.avatar_decoration_data ? user.avatar_decoration_data.asset : user.avatar_decoration;
+                
+                // Get Server Tag and Server Badge Data (from Lanyard)
+                const primaryGuild = user.primary_guild; 
+                
+                let spotifyDetails = null;
+                if (spotifyActivity && spotifyDataFromRoot) {
+                    spotifyDetails = {
+                        song: spotifyActivity.details,
+                        artist: spotifyActivity.state ? spotifyActivity.state.replace(/;/g, ', ') : 'Unknown Artist', 
+                        album: spotifyActivity.assets ? (spotifyActivity.assets.large_text || 'Unknown Album') : 'Unknown Album',
+                        album_art_url: spotifyDataFromRoot.album_art_url, 
+                        timestamps: spotifyActivity.timestamps 
+                    };
+                }
+
+                return {
+                    // Core User Data
+                    username: user.username || 'N/A',
+                    global_name: user.global_name || null,
+                    avatar_decoration: decorationAsset,
+                    avatar_url: avatarUrl,
+                    // Presence (Only from Lanyard)
+                    presence: lanyardRootData.discord_status || 'offline',
+                    custom_status: customStatusActivity ? (customStatusActivity.state || customStatusActivity.details || "ตั้งสถานะเอง") : "ไม่มีสถานะกำหนด",
+                    // Server Identity (Only from Lanyard)
+                    server_tag: primaryGuild ? primaryGuild.tag : null, 
+                    server_badge: (primaryGuild && primaryGuild.badge) ? { identity_guild_id: primaryGuild.identity_guild_id, badge_id: primaryGuild.badge } : null,
+                    // Activity (Only from Lanyard)
+                    spotify_data: spotifyDetails, 
+                    active_desktop: lanyardRootData.active_on_discord_desktop,
+                    active_mobile: lanyardRootData.active_on_discord_mobile,
+                    active_web: lanyardRootData.active_on_discord_web,
+                    // Profile API Data (Banner, Accent Color, Badges, Bio, Connected Accounts)
+                    banner_hash: dcdnUser.banner || lanyardRootData.banner || null, 
+                    accent_color: dcdnUser.accent_color || lanyardRootData.accent_color || null,
+                    badges: profileData.badges || [], 
+                    // NEW FIELDS
+                    bio: dcdnUserProfile.bio || "", 
+                    connected_accounts: profileData.connected_accounts || [], 
+                };
+
+            } catch (error) {
+                console.error("Error fetching Discord data:", error);
+                
+                if (retries < 3) {
+                    const delay = Math.pow(2, retries) * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    return fetchDiscordData(retries + 1);
+                }
+
+                return {
+                    username: "Error", global_name: null, avatar_decoration: null,
+                    avatar_url: "https://placehold.co/128x128/36393f/FFFFFF?text=X",
+                    presence: 'offline', custom_status: "ไม่สามารถดึงข้อมูลได้ (โปรดตรวจสอบ User ID)",
+                    spotify_data: null, server_tag: null, server_badge: null, 
+                    active_desktop: false, active_mobile: false, active_web: false,
+                    banner_hash: null, accent_color: null, badges: [],
+                    bio: "เกิดข้อผิดพลาดในการโหลดข้อมูล Bio", connected_accounts: [],
+                };
+            }
+        }
+        
+        /**
+         * Converts Discord-style timestamps (<t:123456789:F>) into human-readable, localized strings.
+         * @param {string} text The text potentially containing Discord timestamps.
+         * @returns {string} The text with timestamps replaced by localized date/time strings.
+         */
+        function convertDiscordTimestamps(text) {
+            // Regex to find all Discord timestamps: <t:timestamp_seconds:format_style>
+            // Supported format styles: F, f, D, d, T, t, R (R is treated as F here for simplicity)
+            const regex = /<t:(\d+):([FfDdTtRs])>/g;
+            
+            // Define formatting options based on Discord's format styles
+            const formatMap = {
+                // F: Long Date/Time (e.g., "December 10, 2024 7:00 PM")
+                'F': { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false }, 
+                // f: Short Date/Time (e.g., "10 ธันวาคม 2567 19:00")
+                'f': { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false },
+                // D: Long Date (e.g., "10 ธันวาคม 2567")
+                'D': { year: 'numeric', month: 'long', day: 'numeric' },
+                // d: Short Date (e.g., "10/12/2567")
+                'd': { year: 'numeric', month: 'numeric', day: 'numeric' },
+                // T: Long Time (e.g., "19:00:00")
+                'T': { hour: 'numeric', minute: 'numeric', second: 'numeric', hour12: false }, 
+                // t: Short Time (e.g., "19:00")
+                't': { hour: 'numeric', minute: 'numeric', hour12: false },
+                // R: Relative Time (Fallback to Long Date/Time)
+                'R': { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', hour12: false }
+            };
+            
+            // Use Thai localization ('th-TH')
+            return text.replace(regex, (match, timestampSeconds, formatStyle) => {
+                const timestampMs = parseInt(timestampSeconds) * 1000;
+                const date = new Date(timestampMs);
+                const options = formatMap[formatStyle] || formatMap['F']; // Fallback to Long Date/Time
+                
+                if (isNaN(date.getTime())) {
+                    return match; // Return original text if invalid timestamp
+                }
+
+                // If the format is 'R', display the full date and add a note that relative time is not fully supported.
+                if (formatStyle === 'R') {
+                    return date.toLocaleString('th-TH', formatMap['F']) + ' (Relative time)';
+                }
+
+                // Convert to localized string
+                return date.toLocaleString('th-TH', options);
+            });
+        }
+
+
+        /**
+         * Converts Markdown text to styled HTML using marked.js.
+         * Applies Tailwind classes for Discord-like styling.
+         */
+        function renderMarkdown(markdownText) {
+            if (!markdownText) return '';
+            
+            // 1. แปลง Discord Emoji ก่อน (ทั้งแบบ animated และ static)
+            let processedText = markdownText;
+            
+            // แปลง animated emoji: <a:name:id>
+            processedText = processedText.replace(/<a:(\w+):(\d+)>/g, (match, name, id) => {
+                return `<img src="https://cdn.discordapp.com/emojis/${id}.gif" class="inline-emoji" alt="${name}" title="${name}">`;
+            });
+            
+            // แปลง static emoji: <:name:id>
+            processedText = processedText.replace(/<:(\w+):(\d+)>/g, (match, name, id) => {
+                return `<img src="https://cdn.discordapp.com/emojis/${id}.png" class="inline-emoji" alt="${name}" title="${name}">`;
+            });
+            
+            // 2. Convert Discord timestamps
+            processedText = convertDiscordTimestamps(processedText);
+
+            if (typeof marked === 'undefined') {
+                 // Fallback if marked.js is not loaded
+                 return processedText ? `<p>${processedText.replace(/\n/g, '<br>')}</p>` : '';
+            }
+            
+            // 3. Convert Markdown to HTML with basic safety and line breaks
+            let html = marked.parse(processedText, {
+                gfm: true, 
+                breaks: true, 
+                sanitize: true 
+            });
+            
+            // 4. Apply custom Tailwind classes for aesthetics
+            html = html
+                // Links
+                .replace(/<a /g, '<a target="_blank" class="text-indigo-400 hover:text-indigo-300 underline transition-all-smooth" ')
+                // Headings (Map to smaller font sizes suitable for a card)
+                .replace(/<h1/g, '<h4 class="text-lg font-bold mt-3 mb-1.5 pt-1 border-t border-gray-600/50"')
+                .replace(/<h2/g, '<h5 class="text-base font-semibold mt-2 mb-1"')
+                // Lists
+                .replace(/<ul>/g, '<ul class="list-disc list-inside ml-4 space-y-0.5">')
+                .replace(/<ol>/g, '<ol class="list-decimal list-inside ml-4 space-y-0.5">')
+                // Blockquote (for quotes or special notes)
+                .replace(/<blockquote>/g, '<blockquote class="border-l-4 border-indigo-500 pl-3 py-1 italic text-sm text-gray-400 my-2">')
+                // Inline Code
+                .replace(/<code/g, '<code class="bg-gray-700/50 px-1 py-0.5 rounded text-xs font-mono"')
+                // Paragraphs (ensure they have some bottom margin)
+                .replace(/<p>/g, '<p class="mb-1.5">'); 
+                
+            return html;
+        }
+
+        /**
+         * Updates the progress bar and time text for Spotify.
+         */
+        function updateProgress(timestamps) {
+            if (!timestamps || !timestamps.start || !timestamps.end) return;
+
+            const startTime = timestamps.start;
+            const endTime = timestamps.end;
+            const now = Date.now();
+
+            const duration = endTime - startTime;
+            const elapsed = now - startTime;
+
+            let percentage = (elapsed / duration) * 100;
+            percentage = Math.max(0, Math.min(100, percentage));
+
+            spotifyProgressBar.style.width = `${percentage}%`;
+            spotifyElapsedTime.textContent = formatTime(Math.max(0, elapsed)); 
+
+            if (elapsed >= duration) {
+                clearInterval(spotifyProgressIntervalId);
+                spotifyProgressIntervalId = null;
+                spotifyProgressBar.style.width = '100%';
+                spotifyElapsedTime.textContent = spotifyTotalDuration.textContent;
+            }
+        }
+
+        /**
+         * Sets the theme (dark/light) on the body element.
+         */
+        function setTheme(themeName) {
+            document.body.setAttribute('data-theme', themeName);
+            localStorage.setItem('theme', themeName);
+
+            if (themeName === 'light') {
+                moonIcon.classList.remove('hidden'); 
+                sunIcon.classList.add('hidden');
+            } else {
+                moonIcon.classList.add('hidden');
+                sunIcon.classList.remove('hidden'); 
+            }
+        }
+
+        /**
+         * Updates the UI elements with the fetched data.
+         */
+        function updateUI(data) {
+            const { 
+                username, global_name, avatar_decoration, avatar_url, presence, 
+                custom_status, spotify_data, server_tag, server_badge, 
+                active_desktop, active_mobile, active_web, 
+                banner_hash, accent_color, badges, 
+                bio, connected_accounts 
+            } = data;
+            
+            // --- 1. อัปเดตชื่อผู้ใช้และ Username ---
+            const displayNameToUse = global_name || username;
+            userDisplayName.textContent = displayNameToUse;
+            userUsername.textContent = `@${username}`;
+            
+            // --- 2. อัปเดต Bio (ใช้ Markdown Parser และแปลง Discord Timestamp และ Emoji) ---
+            if (bio && bio.trim()) {
+                userBioText.innerHTML = renderMarkdown(bio); 
+                userBioContainer.classList.remove('hidden');
+            } else {
+                userBioText.innerHTML = '';
+                userBioContainer.classList.add('hidden');
+            }
+
+            // --- 3. อัปเดต Connected Accounts ---
+            accountsList.innerHTML = ''; // Clear previous accounts
+            if (connected_accounts && connected_accounts.length > 0) {
+                connectedAccountsContainer.classList.remove('hidden');
+                
+                connected_accounts.forEach(account => {
+                    const iconSvg = getAccountIcon(account.type);
+                    const isVerified = account.verified;
+                    const name = account.name || account.id;
+                    const typeCapitalized = account.type.charAt(0).toUpperCase() + account.type.slice(1);
+                    
+                    // Create Account Link/Card
+                    const accountDiv = document.createElement('a');
+                    accountDiv.href = '#'; // Placeholder link
+                    accountDiv.target = '_blank';
+                    accountDiv.classList.add(
+                        'flex', 'items-center', 'space-x-3', 'p-3', 'rounded-lg', 'transition-all-smooth',
+                        'hover:ring-2', 'hover:ring-indigo-500', 'min-w-0', 'group'
+                    );
+                    accountDiv.style.backgroundColor = 'var(--color-section-bg)';
+                    accountDiv.style.color = 'var(--color-text-primary)';
+                    
+                    // Construct inner HTML
+                    accountDiv.innerHTML = `
+                        <div class="flex-shrink-0 text-indigo-400 group-hover:text-indigo-300 transition-all-smooth">
+                            ${iconSvg}
+                        </div>
+                        <div class="min-w-0 flex-1 flex items-center justify-between">
+                            <span class="font-medium truncate text-sm">
+                                ${name} 
+                                <span class="text-xs font-normal" style="color: var(--color-text-secondary);">(บน ${typeCapitalized})</span>
+                            </span>
+                            ${isVerified ? `
+                                <span title="Verified" class="text-green-500 flex-shrink-0">
+                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                                    </svg>
+                                </span>
+                            ` : ''}
+                        </div>
+                    `;
+                    accountsList.appendChild(accountDiv);
+                });
+            } else {
+                connectedAccountsContainer.classList.add('hidden');
+            }
+            
+            // --- 4. อัปเดต Server Tag/Badge ---
+            const finalServerTag = server_tag; 
+            const serverBadgeData = server_badge;
+            
+            serverTagBadge.innerHTML = ''; 
+
+            if (finalServerTag) {
+                let badgeContent = `<span>${finalServerTag}</span>`; 
+                
+                if (serverBadgeData) {
+                    const BADGE_SIZE = 40; 
+                    const badgeUrl = `https://cdn.discordapp.com/clan-badges/${serverBadgeData.identity_guild_id}/${serverBadgeData.badge_id}?size=${BADGE_SIZE}`;
+                    
+                    const badgeIconHtml = `
+                        <img src="${badgeUrl}" alt="Server Badge" 
+                             title="${finalServerTag} Server Profile"
+                             class="w-4 h-4 mr-2 flex-shrink-0 object-cover"
+                             onerror="this.style.display='none';" />
+                    `;
+                    
+                    badgeContent = badgeIconHtml + badgeContent; 
+                }
+                
+                serverTagBadge.innerHTML = badgeContent;
+                serverTagBadge.classList.remove('hidden');
+            } else {
+                serverTagBadge.classList.add('hidden');
+            }
+            
+            // --- 5. อัปเดต Discord Official Badges ---
+            userBadgesContainer.innerHTML = ''; // Clear previous badges
+
+            if (badges && badges.length > 0) {
+                badges.forEach(badge => {
+                    const badgeIcon = badge.icon;
+                    const badgeDescription = badge.description;
+                    
+                    // Construct the badge URL using the specified format
+                    const badgeUrl = `${BADGE_ICON_BASE_URL}${badgeIcon}.png`;
+
+                    const img = document.createElement('img');
+                    img.src = badgeUrl;
+                    img.alt = badgeDescription;
+                    img.title = badgeDescription; // Tooltip on hover
+                    img.classList.add('w-6', 'h-6', 'rounded-md', 'shadow-md', 'object-cover', 'transition-all-smooth', 'hover:scale-110', 'hover:shadow-lg');
+                    
+                    userBadgesContainer.appendChild(img);
+                });
+            }
+
+
+            // --- 6. อัปเดตสถานะข้อความ ---
+            customStatusText.textContent = custom_status;
+
+            // --- 7. อัปเดต Spotify Status ---
+            if (spotify_data) {
+                spotifySong.textContent = spotify_data.song;
+                spotifyArtist.textContent = `โดย ${spotify_data.artist}`;
+                spotifyAlbum.textContent = `บน ${spotify_data.album}`;
+                spotifyAlbumArt.src = spotify_data.album_art_url; 
+                spotifyContainer.classList.remove('hidden');
+
+                if (spotifyProgressIntervalId) {
+                    clearInterval(spotifyProgressIntervalId);
+                    spotifyProgressIntervalId = null;
+                }
+
+                const duration = spotify_data.timestamps.end - spotify_data.timestamps.start;
+                spotifyTotalDuration.textContent = formatTime(duration);
+
+                updateProgress(spotify_data.timestamps);
+                
+                spotifyProgressIntervalId = setInterval(() => {
+                    updateProgress(spotify_data.timestamps);
+                }, 100); 
+
+            } else {
+                spotifyContainer.classList.add('hidden');
+                if (spotifyProgressIntervalId) {
+                    clearInterval(spotifyProgressIntervalId);
+                    spotifyProgressIntervalId = null;
+                }
+            }
+
+            // --- 8. อัปเดต Active Clients Status ---
+            const activeClients = [];
+            if (active_desktop) activeClients.push('Desktop');
+            if (active_mobile) activeClients.push('Mobile');
+            if (active_web) activeClients.push('Web');
+
+            if (activeClients.length > 0 && presence !== 'offline') {
+                activeClientsText.textContent = activeClients.join(' และ ');
+                activeClientsContainer.classList.remove('hidden');
+            } else {
+                activeClientsContainer.classList.add('hidden');
+            }
+            
+            // --- 9. อัปเดต Profile Banner และ Accent Color ---
+            const userId = DISCORD_USER_ID;
+            
+            // 9a. จัดการ Banner Image
+            if (banner_hash) {
+                // ใช้ .gif เพื่อรองรับ Animated Banner
+                const bannerUrl = `https://cdn.discordapp.com/banners/${userId}/${banner_hash}.gif?size=300`;
+                profileBanner.style.backgroundImage = `url('${bannerUrl}')`;
+                profileBanner.style.backgroundSize = 'cover';
+                profileBanner.style.backgroundPosition = 'center';
+            } else {
+                profileBanner.style.backgroundImage = 'none';
+            }
+
+            // 9b. จัดการ Accent Color (ถ้ามี Banner จะไม่ใช้สีพื้นหลัง)
+            if (!banner_hash && accent_color) {
+                // accent_color สามารถมาเป็นเลขฐาน 10 (decimal) หรือ string hex
+                let hexColor;
+                if (typeof accent_color === 'number') {
+                    hexColor = '#' + accent_color.toString(16).padStart(6, '0');
+                } else if (typeof accent_color === 'string' && accent_color.startsWith('#')) {
+                    hexColor = accent_color;
+                } else {
+                    hexColor = '#5865F2'; // Discord Default Blue
+                }
+
+                profileBanner.style.backgroundColor = hexColor;
+
+            } else if (!banner_hash) {
+                // ถ้าไม่มีทั้ง Banner และ Accent Color ให้ใช้สี Discord Default
+                profileBanner.style.backgroundColor = '#5865F2'; 
+            }
+
+
+            // --- 10. อัปเดตสถานะ Avatar และ Icon พร้อมแอนิเมชัน ---
+            
+            const { iconHtml, colorClass } = getStatusData(data); 
+            const currentPresence = data.presence + (data.active_mobile ? '_mobile' : '_desktop'); 
+
+            if (currentPresence !== previousPresence) {
+                statusIconWrapper.classList.add('opacity-0', 'scale-75');
+
+                setTimeout(() => {
+                    statusIndicatorContainer.classList.remove('bg-green-500', 'bg-amber-500', 'bg-red-500', 'bg-gray-500', 'border-2', 'border-white');
+                    statusIndicatorContainer.classList.add(colorClass);
+                    statusIconWrapper.innerHTML = iconHtml;
+                    statusIconWrapper.classList.remove('opacity-0', 'scale-75');
+                }, 300); 
+
+                previousPresence = currentPresence; 
+            } else {
+                statusIndicatorContainer.classList.remove('bg-green-500', 'bg-amber-500', 'bg-red-500', 'bg-gray-500', 'border-2', 'border-white');
+                statusIndicatorContainer.classList.add(colorClass);
+
+                if (!statusIconWrapper.innerHTML || statusIconWrapper.innerHTML.indexOf(iconHtml.substring(5, 25)) === -1) {
+                    statusIconWrapper.innerHTML = iconHtml;
+                }
+                
+                statusIconWrapper.classList.remove('opacity-0', 'scale-75'); 
+            }
+
+            // --- 11. อัปเดตกรอบรูป (Avatar Decoration) ---
+            avatarImg.src = avatar_url;
+            avatarImg.onerror = () => {
+                avatarImg.src = "https://placehold.co/128x128/36393f/FFFFFF?text=X";
+            };
+            
+            if (avatar_decoration && avatar_decoration !== 'null') {
+                const newFrameUrl = `https://cdn.discordapp.com/avatar-decoration-presets/${avatar_decoration}.png?size=128`;
+                
+                if (newFrameUrl !== previousAvatarDecorationUrl) {
+                    console.log(`[Frame Update] Frame changed. Updating source: ${newFrameUrl}`);
+                    profileFrame.src = newFrameUrl;
+                    previousAvatarDecorationUrl = newFrameUrl; 
+                    
+                    profileFrame.classList.remove('opacity-0');
+                    profileFrame.classList.add('opacity-100');
+                    
+                    profileFrame.onerror = () => {
+                        profileFrame.classList.remove('opacity-100');
+                        profileFrame.classList.add('opacity-0');
+                        profileFrame.src = '';
+                        previousAvatarDecorationUrl = null; 
+                    };
+                }
+                
+            } else {
+                if (previousAvatarDecorationUrl !== null) {
+                    console.log('[Frame Update] Frame removed. Clearing source.');
+                    profileFrame.classList.remove('opacity-100');
+                    profileFrame.classList.add('opacity-0');
+                    profileFrame.src = '';
+                    previousAvatarDecorationUrl = null; 
+                }
+            }
+        }
+
+        /**
+         * Main function to load and update the data periodically.
+         */
+        async function loadAndScheduleUpdate() {
+            // 1. โหลดธีมที่บันทึกไว้
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+            
+            // 2. โหลดข้อมูลครั้งแรก
+            const initialData = await fetchDiscordData();
+            updateUI(initialData);
+            
+            // 3. ซ่อน Loading Overlay หลังจากโหลดข้อมูลและอวาตาร์เสร็จสมบูรณ์
+            // เราจะรอให้ภาพโปรไฟล์โหลดเสร็จก่อนที่จะซ่อน Loading Spinner
+            await new Promise(resolve => {
+                // ตรวจสอบว่าภาพโหลดเสร็จแล้วหรือไม่ (กรณีแคช)
+                if (avatarImg.complete) {
+                    resolve();
+                } else {
+                    // รอให้เหตุการณ์ onload ทำงาน
+                    avatarImg.onload = resolve;
+                    // ในกรณีที่เกิดข้อผิดพลาดในการโหลดหรือ URL ไม่ถูกต้อง ให้resolve ด้วย fallback 3 วินาที
+                    avatarImg.onerror = resolve; 
+                    setTimeout(resolve, 3000); 
+                }
+            });
+
+            loadingOverlay.classList.add('opacity-0');
+            // ซ่อน element จริงๆ หลังจากแอนิเมชันจบ (0.5 วินาที)
+            setTimeout(() => {
+                loadingOverlay.classList.add('hidden');
+            }, 500); 
+            
+            // 4. ตั้งค่าลิงก์แชท Discord ทันที
+            discordChatButton.href = `https://discordapp.com/users/${DISCORD_USER_ID}`;
+
+            // 5. ตั้งค่า Event Listener สำหรับการสลับธีม
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                setTheme(newTheme);
+            });
+
+            // 6. ตั้งเวลาอัปเดตข้อมูล Discord ทุก 1 วินาที
+            setInterval(async () => {
+                const data = await fetchDiscordData();
+                updateUI(data); 
+            }, 1000); 
+        }
+
+        // เริ่มต้นการโหลดเมื่อหน้าเว็บโหลดเสร็จ
+        window.onload = loadAndScheduleUpdate;
+    </script>
+</body>
+</html>
   );
 }
